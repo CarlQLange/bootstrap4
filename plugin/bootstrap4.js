@@ -223,7 +223,7 @@ class BootstrapCompiler {
 
       // Insert custom variables module (after default variables module)
       if (settings.scss.customVariables) {
-        if (!fs.existsSync(path.join(settingsPathDir, bootstrapVariables))) {
+        if (!existsSync(path.join(settingsPathDir, bootstrapVariables))) {
           // Generate the custom variables file because it doesn't exist
           let src = getAsset(path.join(scssPath, '_variables.scss'))
           src = src.substr(Math.max(src.indexOf('\n\n'), 0)) // Cut the top commentary off
@@ -238,7 +238,7 @@ class BootstrapCompiler {
 
 
       // Expose mixins if specified
-      if (settings.scss.exposeMixins && !fs.exists(path.join(settingsPathDir, bootstrapMixins))) {
+      if (settings.scss.exposeMixins && !existsSync(path.join(settingsPathDir, bootstrapMixins))) {
         // Generate the mixins file because it doesn't exist
         let src = getAsset(path.join(scssPath, '_mixins.scss'))
         src = src.substr(Math.max(src.indexOf('\n\n'), 0))
@@ -398,10 +398,20 @@ function resolveFilePath(filePath) {
   let paths = []
 
   paths[1] = paths[0] = `packages/${ match[1].replace(':', '_') }/${ match[2] }`
-  if (!fs.existsSync(paths[0]))
+  if (!existsSync(paths[0]))
     paths[2] = paths[0] = `packages/${ match[1].replace(/.*:/, '') }/${ match[2] }`
-  if (!fs.existsSync(paths[0]))
+  if (!existsSync(paths[0]))
     throw new Error(`Path does not exist: ${ filePath }\nTested path 1: ${ paths[1] }\nTested path 2: ${ paths[2] }`)
 
   return paths[0]
+}
+
+function existsSync(path) {
+    try {
+        if (fs.statSync(path)) {
+            return true;
+        }
+    } catch (e) {
+        return false;
+    }
 }
